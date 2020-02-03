@@ -51,9 +51,9 @@ public int PropMenuHandler(Menu menu, MenuAction action, int client, int select)
 			menu.GetItem(select, id, sizeof(id), _, item, sizeof(item));
 			int numid = StringToInt(id);
 
-			int ent = CreateEntityByName("prop_dynamic_override");
 			if (IsModelPrecached(item))
 			{
+				int ent = CreateEntityByName("prop_dynamic_override");
 				DispatchKeyValue(ent, "solid", "6");
 				SetEntityModel(ent, item);
 				DispatchSpawn(ent);
