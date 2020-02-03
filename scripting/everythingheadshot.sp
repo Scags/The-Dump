@@ -27,11 +27,13 @@ public void OnPluginStart()
 	hWeaponSpecifics = CreateConVar("sm_headshotc_weapons", "0", "If sm_headshotc_ignored flags a weapon that can already headshot, should that weapon no longer be able to headshot?", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	AutoExecConfig(true, "HeadshotController");
 
-	GameData conf = new GameData("tf2.headshots");
-	hCanFireCriticalShot = DHookCreateEx(conf, "CTFWeaponBase::CanFireCriticalShot", HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity, CTFWeaponBase_CanFireCriticalShot);
+//	GameData conf = new GameData("tf2.headshots");
+	// 428 windows
+	// 435 linux
+	hCanFireCriticalShot = DHookCreate(428, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity, CTFWeaponBase_CanFireCriticalShot);
 	DHookAddParam(hCanFireCriticalShot, HookParamType_Bool);
 	DHookAddParam(hCanFireCriticalShot, HookParamType_CBaseEntity, _, DHookPass_ByRef);
-	delete conf;
+//	delete conf;
 }
 
 public void OnEntityCreated(int ent, const char[] classname)
