@@ -34,6 +34,8 @@ public void OnThink(int client)
 	ShowSyncHudText(client, hud, buffer);
 }
 
+#define BUILDING_MODE_ANY view_as< TFObjectMode >(-1)
+
 // CTFPlayer::GetObjectCount()
 stock int TF2_GetObjectCount(int client)
 {
@@ -55,57 +57,42 @@ stock int TF2_GetObject(int client, objidx)
 stock int TF2_GetObjectOfType(int client, TFObjectType objtype, TFObjectMode objmode = TFObjectMode_None, bool incdisposables = false)
 {
 	int numobjs = TF2_GetObjectCount(client);
-	if (numobjs <= 0)
-		return -1;
-
-	int obj;
-	int count;
-	do
+	for (int i = 0; i < numobjs; ++i)
 	{
-		obj = TF2_GetObject(client, count);
-		if (TF2_GetObjectType(obj) == objtype
-		&& TF2_GetObjectMode(obj) == objmode
-		&& !(GetEntProp(obj, Prop_Send, "m_bDisposableBuilding") && !incdisposables))
-		{
-			return obj;
-		}
+		int obj = TF2_GetObject(client, i);
+		if (!obj)
+			continue;
 
-	}	while ++count < numobjs
+		if (TF2_GetObjectType(obj) != objtype)
+			continue;
+
+		if (TF2_GetObjectMode(obj) != objmode)
+			continue;
+
+		if (!incdisposables && GetEntProp(obj, Prop_Send, "m_bDisposableBuilding"))
+			continue;
+
+		return obj;
+	}
 	return -1;
 }
 
 // CTFPlayer::GetNumObjects(int, int)
-stock int TF2_GetNumObjects(int client, TFObjectMode objmode, TFObjectType objtype, bool incdisposables = false)
+stock int TF2_GetNumObjects(int client, TFObjectType objtype, TFObjectMode objmode, bool incdisposables = false)
 {
-	int objects;
 	int count;
 	int objcount = TF2_GetObjectCount(client);
-	int obj;
-	if (objtype == view_as< TFObjectType >(-1))
+	for (int i = 0; i < objcount; ++i)
 	{
-		while (count < objcount)
-		{
-			obj = TF2_GetObject(client, count);
-			if (!(GetEntProp(obj, Prop_Send, "m_bDisposableBuilding") && !incdisposables))
-			{
-				if (TF2_GetObjectMode(obj) == objmode)
-					++objects;
-			}
+		int obj = TF2_GetObject(client, i);
+		if (!obj)
+			continue;
+
+		if (!incdisposables && GetEntProp(obj, Prop_Send, "m_bDisposableBuilding"))
+			continue;
+
+		if (TF2_GetObjectType(obj) == objtype && (objmode == BUILDING_MODE_ANY || TF2_GetObjectMode(objmode) == objmode))
 			++count;
-		}
 	}
-	else
-	{
-		while (objcount > count)
-		{
-			obj = TF2_GetObject(client, count);
-			if (!(GetEntProp(obj, Prop_Send, "m_bDisposableBuilding") && !incdisposables))
-			{
-				if (TF2_GetObjectMode(obj) == objmode && TF2_GetObjectType(obj) == objtype)
-					++objects;
-			}
-			++count;
-		}
-	}
-	return objects;
+	return count;
 }
